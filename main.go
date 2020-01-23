@@ -76,16 +76,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	eg.Go(func() error {
-		ticker := time.NewTicker(time.Second)
+		ticker := time.NewTicker(time.Minute)
 		defer ticker.Stop()
 		defer cancel()
 
 		for {
 			select {
-			case t := <-ticker.C:
-				if t.Second()%5 != 0 {
-					continue
-				}
+			case <-ticker.C:
 				if err := client.GetAll(); err != nil {
 					logrus.Error(err)
 				}
@@ -111,8 +108,6 @@ func getTargets() []string {
 	flag.StringVar(&targets, "t", "", "<-t> set target user_id, can use spaces")
 	flag.Parse()
 
-	fmt.Printf("%+v\n", targets)
-
 	return strings.Fields(targets)
 }
 
@@ -127,7 +122,7 @@ func (p *Client) GetAll() error {
 		u.Add("tweet_mode", "extended")
 		tweets, err := p.tw.GetUserTimeline(u)
 		if err != nil {
-			continue
+			return err
 		}
 		if len(tweets) < 1 {
 			continue
