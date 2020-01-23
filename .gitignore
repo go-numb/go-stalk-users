@@ -1,0 +1,7 @@
+*.toml
+*.json
+*.log
+
+!config_sample.toml
+
+images/*
